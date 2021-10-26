@@ -1,0 +1,13 @@
+﻿@page "/todolist"
+
+<h3 @onclick="change">TodoList @name (@i)</h3>
+
+@code {
+    string name = "Tedu";
+
+    int i = 0;
+    private void change()
+    {
+        i=i+2;
+    }
+}

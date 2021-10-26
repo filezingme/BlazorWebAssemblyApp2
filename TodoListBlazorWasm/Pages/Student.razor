@@ -1,0 +1,37 @@
+﻿@page "/students"
+@*@inject HttpClient http*@
+
+<h3>Students</h3>
+
+@if(students == null)
+{
+    <p><em>loading...</em></p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Full name</th>
+                <th>Age</th>
+                <th>Sex</th>
+                <th>Birthday</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var student in students)
+            {
+                <tr>
+                    <td>@student.FullName</td>
+                    <td>@student.Age</td>
+                    <td>@student.Sex</td>
+                    <td>@student.Birthday.ToShortDateString()</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    // code => Student.razor.cs
+}

@@ -1,0 +1,16 @@
+﻿[
+  {
+    "firstname": "tai",
+    "lastname": "truong",
+    "age": 18,
+    "sex": "male",
+    "birthday": "1979-12-04"
+  },
+  {
+    "firstname": "thang",
+    "lastname": "tran",
+    "age": 19,
+    "sex": "female",
+    "birthday": "1983-07-20"
+  }
+]
