@@ -13,7 +13,7 @@ namespace TodoListBlazorWasm.Pages
 
         protected override async Task OnInitializedAsync()
         {
-            students = await http.GetFromJsonAsync<StudentInfo[]>("sample-data/students.json");
+            students = await http.GetFromJsonAsync<StudentInfo[]>("https://localhost:5002/sample-data/students.json");
         }
 
         public class StudentInfo
