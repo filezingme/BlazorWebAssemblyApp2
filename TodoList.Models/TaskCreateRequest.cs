@@ -10,12 +10,13 @@ namespace TodoList.Models
 {
     public class TaskCreateRequest
     {
-        public Guid Id { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
-        [Required]
-        [MaxLength(250)]
+        [MaxLength(20, ErrorMessage ="You can not fill task name over than 20 characters")]
+        [Required(ErrorMessage ="Please enter your task name")]
         public string Name { get; set; }
 
-        public Priority Priority { get; set; }
+        [Required(ErrorMessage ="Please select your task priority")]
+        public Priority? Priority { get; set; }
     }
 }

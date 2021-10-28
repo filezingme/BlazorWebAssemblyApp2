@@ -18,11 +18,11 @@ namespace TodoListBlazor.Api.Controllers
         {
             _taskRepository = taskRepository;
         }
-        //api/tasks
+        //api/tasks?name=
         [HttpGet]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
         {
-            var tasks = await _taskRepository.GetTaskList();
+            var tasks = await _taskRepository.GetTaskList(taskListSearch);
             var taskDto = tasks.Select(x => new TaskDto
             {
                 Status = x.Status,
@@ -47,7 +47,7 @@ namespace TodoListBlazor.Api.Controllers
             var task = await _taskRepository.Create(new Entities.Task
             {
                 Name = request.Name,
-                Priority = request.Priority,
+                Priority = request.Priority.HasValue ? request.Priority.Value : Priority.Low,
                 Status = Status.Open,
                 CreatedDate = DateTime.Now,
                 Id = request.Id

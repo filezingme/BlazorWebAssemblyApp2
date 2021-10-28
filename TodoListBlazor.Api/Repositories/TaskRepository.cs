@@ -36,9 +36,20 @@ namespace TodoListBlazor.Api.Repositories
             return await _context.Tasks.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Entities.Task>> GetTaskList()
+        public async Task<IEnumerable<Entities.Task>> GetTaskList(TaskListSearch taskListSearch)
         {
-            return await _context.Tasks.Include(x => x.Assignee).ToListAsync();
+            var query = _context.Tasks.Include(x => x.Assignee).AsQueryable();
+
+            if (!string.IsNullOrEmpty(taskListSearch.Name))
+                query = query.Where(x => x.Name.Contains(taskListSearch.Name));
+
+            if (taskListSearch.AssigneeId.HasValue)
+                query = query.Where(x => x.AssigneeId == taskListSearch.AssigneeId.Value);
+
+            if (taskListSearch.Priority.HasValue)
+                query = query.Where(x => x.Priority == taskListSearch.Priority.Value);
+
+            return await query.ToListAsync();
         }
 
         public async Task<Entities.Task> Update(Entities.Task task)
