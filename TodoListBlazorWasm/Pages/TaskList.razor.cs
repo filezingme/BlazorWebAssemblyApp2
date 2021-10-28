@@ -22,7 +22,7 @@ namespace TodoListBlazorWasm.Pages
             Tasks = await TaskApiClient.GetTaskList();
             Assignees = await UserApiClient.GetAssignees();
         }
-    }
+        }
 
     public class TaskListSearch
     {
