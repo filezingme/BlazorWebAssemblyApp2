@@ -1,10 +1,14 @@
 ﻿@page "/taskCreate"
 @using TodoList.Models;
 @using TodoList.Models.Enums
+@using TodoListBlazorWasm.Services
+@inject ITaskApiClient TaskApiClient;
+@inject NavigationManager NavigationManager;
+@inject IToastService ToastService;
 
 <h3>TaskCreate</h3>
 
-<EditForm Model="Task">
+<EditForm Model="Task" OnValidSubmit="SubmitTask">
     <DataAnnotationsValidator />
     @*<ValidationSummary />*@
     <div class="form-group">
@@ -30,4 +34,18 @@
 
 @code {
     private TaskCreateRequest Task = new TaskCreateRequest();
+
+    private async Task SubmitTask(EditContext context)
+    {
+        var result = await TaskApiClient.CreateTask(Task);
+        if (result)
+        {
+            ToastService.ShowSuccess($"{Task.Name} has been created successfully.", "Success");
+            NavigationManager.NavigateTo("/taskList");
+        }
+        else
+        {
+            ToastService.ShowError($"An error occurred in progress. Please contact to administrator.", "Error");
+        }
+    }
 }

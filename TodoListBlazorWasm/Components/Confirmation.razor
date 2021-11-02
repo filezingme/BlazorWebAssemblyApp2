@@ -1,0 +1,47 @@
+﻿@if (ShowConfirmation)
+{
+    <div class="modal fade show d-block" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">@ConfirmationTitle</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close" @onclick="() => OnConfirmationChange(false)">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>@ConfirmationMessage</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" @onclick="() => OnConfirmationChange(false)">Cancel</button>
+                    <button type="button" class="btn btn-danger" data-dismiss="modal" @onclick="() => OnConfirmationChange(true)">Delete</button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    protected bool ShowConfirmation { set; get; }
+
+    [Parameter]
+    public string ConfirmationTitle { set; get; } = "Confirm delete";
+
+    [Parameter]
+    public string ConfirmationMessage { set; get; } = "Are you sure you want to delete?";
+
+    [Parameter]
+    public EventCallback<bool> ConfirmationChanged { set; get; }
+
+    public void Show()
+    {
+        ShowConfirmation = true;
+        StateHasChanged();
+    }
+
+    public async Task OnConfirmationChange(bool value)
+    {
+        ShowConfirmation = false;
+        await ConfirmationChanged.InvokeAsync(value);
+    }
+}

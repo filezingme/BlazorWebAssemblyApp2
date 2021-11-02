@@ -18,6 +18,7 @@ namespace TodoListBlazor.Api.Controllers
         {
             _taskRepository = taskRepository;
         }
+
         //api/tasks?name=
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
@@ -37,8 +38,9 @@ namespace TodoListBlazor.Api.Controllers
             return Ok(taskDto);
 
         }
+
         [HttpPost]
-        public async Task<IActionResult> Create(TaskCreateRequest request)
+        public async Task<IActionResult> Create([FromBody]TaskCreateRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -54,9 +56,10 @@ namespace TodoListBlazor.Api.Controllers
             });
             return CreatedAtAction(nameof(GetById), new { id = task.Id }, task);
         }
+
         [HttpPut]
         [Route("{id}")]
-        public async Task<IActionResult> Update(Guid id, TaskUpdateRequest request)
+        public async Task<IActionResult> Update(Guid id, [FromBody] TaskUpdateRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -67,7 +70,7 @@ namespace TodoListBlazor.Api.Controllers
                 return NotFound($"{id} is not found.");
 
             taskFromDB.Name = request.Name;
-            taskFromDB.Priority = request.Priority;
+            taskFromDB.Priority = request.Priority.HasValue ? request.Priority.Value : Priority.Low;
 
             var taskResult = await _taskRepository.Update(taskFromDB);
 
@@ -81,6 +84,7 @@ namespace TodoListBlazor.Api.Controllers
             });
 
         }
+
         //api/tasks/xxx
         [HttpGet]
         [Route("{id}")]
@@ -89,6 +93,26 @@ namespace TodoListBlazor.Api.Controllers
             var task = await _taskRepository.GetById(id);
             if (task == null)
                 return NotFound($"{id} is not found.");
+            return Ok(new TaskDto
+            {
+                Name = task.Name,
+                Status = task.Status,
+                Id = task.Id,
+                Priority = task.Priority,
+                CreatedDate = task.CreatedDate
+            });
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<IActionResult> Delete([FromRoute] Guid id)
+        {
+            var task = await _taskRepository.GetById(id);
+            if (task == null)
+                return NotFound($"{id} is not found.");
+
+            await _taskRepository.Delete(task);
+
             return Ok(new TaskDto
             {
                 Name = task.Name,
