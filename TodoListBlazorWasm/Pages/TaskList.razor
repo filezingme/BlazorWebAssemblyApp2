@@ -1,4 +1,5 @@
 ﻿@page "/TaskList"
+@using TodoListBlazorWasm.Pages.Components
 @using TodoListBlazorWasm.Components
 @inject IConfiguration Configuration
 
@@ -30,7 +31,7 @@ else
                     <tr>
                         <td>@item.Name</td>
                         <td><PriorityLabel Priority="item.Priority"></PriorityLabel></td>
-                        <td>@item.AssigneeName</td>
+                        <td><button class="btn btn-link" @onclick="()=>OpenAssignPopup(item.Id)">@item.AssigneeName</button></td>
                         <td>@item.CreatedDate.ToString(Configuration["DateTimeFormat"])</td>
                         <td><StatusLabel Status="item.Status"></StatusLabel></td>
                         <td>
@@ -41,6 +42,9 @@ else
                     </tr>
                 }
             </tbody>
+            <tfoot>
+                <Pagination MetaData="MetaData" Spread="10" SelectedPage="SelectedPage"></Pagination>
+            </tfoot>
         </table>
     </div>
     <Confirmation ConfirmationMessage="@($"Are you sure to delete?")"
@@ -48,4 +52,6 @@ else
               @ref="DeleteConfirmation"
               ConfirmationChanged="OnConfirmDeleteTask">
     </Confirmation>
+
+    <AssignTask @ref="AssignTaskDialog" CloseEventCallback="AssignTaskSuccess"></AssignTask>
 }

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TodoList.Models;
+using TodoList.Models.SeedWork;
 using TodoListBlazor.Api.Data;
 using TodoListBlazor.Api.Entities;
 
@@ -36,7 +37,7 @@ namespace TodoListBlazor.Api.Repositories
             return await _context.Tasks.FindAsync(id);
         }
 
-        public async Task<IEnumerable<Entities.Task>> GetTaskList(TaskListSearch taskListSearch)
+        public async Task<PagedList<Entities.Task>> GetTaskList(TaskListSearch taskListSearch)
         {
             var query = _context.Tasks.Include(x => x.Assignee).AsQueryable();
 
@@ -49,7 +50,14 @@ namespace TodoListBlazor.Api.Repositories
             if (taskListSearch.Priority.HasValue)
                 query = query.Where(x => x.Priority == taskListSearch.Priority.Value);
 
-            return await query.OrderByDescending(x=>x.CreatedDate).ToListAsync();
+            var count = await query.CountAsync();
+
+            var data = await query.OrderByDescending(x => x.CreatedDate)
+                .Skip((taskListSearch.PageNumber - 1) * taskListSearch.PageSize)
+                .Take(taskListSearch.PageSize)
+                .ToListAsync();
+
+            return new PagedList<Entities.Task>(data, count, taskListSearch.PageNumber, taskListSearch.PageSize);
         }
 
         public async Task<Entities.Task> Update(Entities.Task task)

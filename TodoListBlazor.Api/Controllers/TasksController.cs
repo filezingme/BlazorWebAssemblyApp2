@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using TodoList.Models;
 using TodoList.Models.Enums;
+using TodoList.Models.SeedWork;
 using TodoListBlazor.Api.Repositories;
 
 namespace TodoListBlazor.Api.Controllers
@@ -23,8 +24,8 @@ namespace TodoListBlazor.Api.Controllers
         [HttpGet]
         public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
         {
-            var tasks = await _taskRepository.GetTaskList(taskListSearch);
-            var taskDto = tasks.Select(x => new TaskDto
+            var pagedList = await _taskRepository.GetTaskList(taskListSearch);
+            var taskDto = pagedList.Items.Select(x => new TaskDto
             {
                 Status = x.Status,
                 Name = x.Name,
@@ -35,12 +36,17 @@ namespace TodoListBlazor.Api.Controllers
                 AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
             });
 
-            return Ok(taskDto);
-
+            return Ok(new PagedList<TaskDto>(
+                    taskDto.ToList(),
+                    pagedList.MetaData.TotalCount,
+                    pagedList.MetaData.CurrentPage,
+                    pagedList.MetaData.PageSize
+                )
+            );
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create([FromBody]TaskCreateRequest request)
+        public async Task<IActionResult> Create([FromBody] TaskCreateRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -85,6 +91,33 @@ namespace TodoListBlazor.Api.Controllers
 
         }
 
+        [HttpPut]
+        [Route("{id}/assign")]
+        public async Task<IActionResult> AssignTask(Guid id, [FromBody] AssignTaskRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+            var taskFromDB = await _taskRepository.GetById(id);
+            if (taskFromDB == null)
+                return NotFound($"{id} is not found.");
+
+            taskFromDB.AssigneeId = request.UserId.Value == Guid.Empty ? null : request.UserId.Value;
+
+            var taskResult = await _taskRepository.Update(taskFromDB);
+
+            return Ok(new TaskDto
+            {
+                Name = taskResult.Name,
+                Status = taskResult.Status,
+                Id = taskResult.Id,
+                Priority = taskResult.Priority,
+                CreatedDate = taskResult.CreatedDate
+            });
+
+        }
+
         //api/tasks/xxx
         [HttpGet]
         [Route("{id}")]
@@ -99,6 +132,7 @@ namespace TodoListBlazor.Api.Controllers
                 Status = task.Status,
                 Id = task.Id,
                 Priority = task.Priority,
+                AssigneeId = task.AssigneeId,
                 CreatedDate = task.CreatedDate
             });
         }

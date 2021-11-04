@@ -59,7 +59,7 @@ else
         var result = await TaskApiClient.UpdateTask(Guid.Parse(TaskId), Task);
         if (result)
         {
-            ToastService.ShowSuccess($"{Task.Name} has been updated successfully.", "Success");
+            ToastService.ShowSuccess($"'{Task.Name}' has been updated successfully.", "Success");
             NavigationManager.NavigateTo("/taskList");
         }
         else
