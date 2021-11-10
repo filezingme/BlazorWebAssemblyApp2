@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Linq;
@@ -6,6 +8,7 @@ using System.Threading.Tasks;
 using TodoList.Models;
 using TodoList.Models.Enums;
 using TodoList.Models.SeedWork;
+using TodoListBlazor.Api.Extensions;
 using TodoListBlazor.Api.Repositories;
 
 namespace TodoListBlazor.Api.Controllers
@@ -25,6 +28,32 @@ namespace TodoListBlazor.Api.Controllers
         public async Task<IActionResult> GetAll([FromQuery] TaskListSearch taskListSearch)
         {
             var pagedList = await _taskRepository.GetTaskList(taskListSearch);
+            var taskDto = pagedList.Items.Select(x => new TaskDto
+            {
+                Status = x.Status,
+                Name = x.Name,
+                AssigneeId = x.AssigneeId,
+                CreatedDate = x.CreatedDate,
+                Priority = x.Priority,
+                Id = x.Id,
+                AssigneeName = x.Assignee != null ? x.Assignee.FirstName + ' ' + x.Assignee.LastName : "N/A"
+            });
+
+            return Ok(new PagedList<TaskDto>(
+                    taskDto.ToList(),
+                    pagedList.MetaData.TotalCount,
+                    pagedList.MetaData.CurrentPage,
+                    pagedList.MetaData.PageSize
+                )
+            );
+        }
+
+        [HttpGet("me")]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> GetByAssigneeId([FromQuery] TaskListSearch taskListSearch)
+        {
+            var userId = User.GetUserId();
+            var pagedList = await _taskRepository.GetTaskListByUserId(Guid.Parse(userId), taskListSearch);
             var taskDto = pagedList.Items.Select(x => new TaskDto
             {
                 Status = x.Status,

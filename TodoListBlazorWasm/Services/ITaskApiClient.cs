@@ -9,6 +9,7 @@ namespace TodoListBlazorWasm.Services
     public interface ITaskApiClient
     {
         Task<PagedList<TaskDto>> GetTaskList(TaskListSearch taskListSearch);
+        Task<PagedList<TaskDto>> GetMyTasks(TaskListSearch taskListSearch);
 
         Task<TaskDto> GetTaskDetail(string id);
 

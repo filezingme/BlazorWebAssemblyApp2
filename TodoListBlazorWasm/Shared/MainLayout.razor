@@ -1,13 +1,14 @@
 ﻿@inherits LayoutComponentBase
 @using Blazored.Toast.Configuration
+@using Microsoft.AspNetCore.Components.Authorization;
 
 <BlazoredToasts Position="ToastPosition.BottomRight"
-    Timeout="5"
-    IconType="IconType.FontAwesome"
-    ErrorIcon="fa fa-times"
-    InfoIcon="fa fa-info"
-    SuccessIcon="fa fa-check"
-    WarningIcon="fa fa-exclamation" />
+                Timeout="5"
+                IconType="IconType.FontAwesome"
+                ErrorIcon="fa fa-times"
+                InfoIcon="fa fa-info"
+                SuccessIcon="fa fa-check"
+                WarningIcon="fa fa-exclamation" />
 
 <div class="page">
     <div class="sidebar">
@@ -16,7 +17,15 @@
 
     <div class="main">
         <div class="top-row px-4">
-            <a href="http://blazor.net" target="_blank" class="ml-md-auto">About</a>
+            <AuthorizeView>
+                <Authorized>
+                    Hello, @context.User.Identity.Name
+                    <a href="/logout" class="ml-md-auto">Logout</a>
+                </Authorized>
+                <NotAuthorized>
+                    <a href="/login" class="ml-md-auto">Login</a>
+                </NotAuthorized>
+            </AuthorizeView>
         </div>
 
         <div class="content px-4">
